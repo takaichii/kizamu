@@ -1,0 +1,176 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  image     String?
+  createdAt DateTime @default(now())
+
+  accounts        Account[]
+  sessions        Session[]
+  dailyEntries    DailyEntry[]
+  bucketItems     BucketItem[]
+  lifeOrientations LifeOrientation[]
+  mandalas        QuarterlyMandala[]
+}
+
+// Auth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Daily check-in
+model DailyEntry {
+  id           String        @id @default(cuid())
+  userId       String
+  date         DateTime      @db.Date
+  mood         Int?
+  summary      String?
+  tomorrowNote String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievements Achievement[]
+
+  @@unique([userId, date])
+}
+
+// Micro achievements
+model Achievement {
+  id        String      @id @default(cuid())
+  entryId   String
+  text      String
+  tags      String[]
+  isQuick   Boolean     @default(false)
+  createdAt DateTime    @default(now())
+
+  entry       DailyEntry   @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  recordLinks RecordLink[]
+}
+
+// Life Orientations (values / life directions)
+model LifeOrientation {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bucketItems  BucketItem[]
+  mandalaCells MandalaCell[]
+  recordLinks  RecordLink[]
+}
+
+// Bucket list items
+model BucketItem {
+  id            String      @id @default(cuid())
+  userId        String
+  title         String
+  description   String?
+  category      String
+  status        BucketStatus @default(dream)
+  doneAt        DateTime?
+  orientationId String?
+  createdAt     DateTime    @default(now())
+
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orientation  LifeOrientation? @relation(fields: [orientationId], references: [id])
+  mandalaCells MandalaCell[]
+  recordLinks  RecordLink[]
+}
+
+enum BucketStatus {
+  dream
+  inProgress
+  done
+}
+
+// Quarterly mandala
+model QuarterlyMandala {
+  id          String        @id @default(cuid())
+  userId      String
+  year        Int
+  quarter     Int
+  centerTheme String
+  createdAt   DateTime      @default(now())
+
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cells MandalaCell[]
+
+  @@unique([userId, year, quarter])
+}
+
+model MandalaCell {
+  id            String   @id @default(cuid())
+  mandalaId     String
+  position      Int
+  title         String
+  bucketItemId  String?
+  orientationId String?
+  memo          String?
+
+  mandala     QuarterlyMandala  @relation(fields: [mandalaId], references: [id], onDelete: Cascade)
+  bucketItem  BucketItem?       @relation(fields: [bucketItemId], references: [id])
+  orientation LifeOrientation?  @relation(fields: [orientationId], references: [id])
+  recordLinks RecordLink[]
+
+  @@unique([mandalaId, position])
+}
+
+// Links between achievements and goals
+model RecordLink {
+  id            String   @id @default(cuid())
+  achievementId String
+  bucketItemId  String?
+  mandalaCellId String?
+  orientationId String?
+  note          String?
+  createdAt     DateTime @default(now())
+
+  achievement  Achievement      @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  bucketItem   BucketItem?      @relation(fields: [bucketItemId], references: [id])
+  mandalaCell  MandalaCell?     @relation(fields: [mandalaCellId], references: [id])
+  orientation  LifeOrientation? @relation(fields: [orientationId], references: [id])
+}

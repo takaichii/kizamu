@@ -13,8 +13,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kizamu（刻む）",
-  description: "今日も生きた、を積み重ねるアプリ",
+  title: {
+    default: "Kizamu（刻む）",
+    template: "%s | Kizamu",
+  },
+  description: "今日も生きた、を積み重ねるアプリ。小さな達成を記録して、人生を刻んでいこう。",
+  openGraph: {
+    title: "Kizamu（刻む）",
+    description: "今日も生きた、を積み重ねるアプリ。小さな達成を記録して、人生を刻んでいこう。",
+    siteName: "Kizamu",
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Kizamu（刻む）",
+    description: "今日も生きた、を積み重ねるアプリ。小さな達成を記録して、人生を刻んでいこう。",
+  },
 };
 
 export default function RootLayout({
@@ -24,7 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="ja"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>

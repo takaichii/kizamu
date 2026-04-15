@@ -56,13 +56,13 @@ type StatCardProps = { label: string; value: string | number; sub?: string };
 
 function StatCard({ label, value, sub }: StatCardProps) {
   return (
-    <div className="flex flex-col items-center gap-1 rounded-2xl bg-white dark:bg-zinc-800 p-4 shadow-sm">
-      <span className="text-2xl font-bold text-amber-500 dark:text-amber-400">
+    <div className="flex flex-col items-center gap-1 rounded-2xl bg-white p-4 shadow-sm">
+      <span className="text-2xl font-bold text-amber-500">
         {value}
       </span>
-      <span className="text-xs text-stone-500 dark:text-zinc-400">{label}</span>
+      <span className="text-xs text-stone-500">{label}</span>
       {sub && (
-        <span className="text-xs text-stone-400 dark:text-zinc-500">{sub}</span>
+        <span className="text-xs text-stone-400">{sub}</span>
       )}
     </div>
   );
@@ -79,13 +79,13 @@ function NavCard({ href, icon, label, description }: NavCardProps) {
   return (
     <Link
       href={href}
-      className="flex flex-col gap-2 rounded-2xl bg-white dark:bg-zinc-800 p-4 shadow-sm hover:bg-amber-50 dark:hover:bg-zinc-700 transition-colors"
+      className="flex flex-col gap-2 rounded-2xl bg-white p-4 shadow-sm hover:bg-amber-50 transition-colors"
     >
       <span className="text-2xl">{icon}</span>
-      <span className="font-semibold text-sm text-stone-800 dark:text-zinc-50">
+      <span className="font-semibold text-sm text-stone-800">
         {label}
       </span>
-      <span className="text-xs text-stone-500 dark:text-zinc-400 leading-relaxed">
+      <span className="text-xs text-stone-500 leading-relaxed">
         {description}
       </span>
     </Link>
@@ -98,38 +98,38 @@ export default function HomePage() {
   const { year, quarter } = getCurrentQuarter(today);
 
   return (
-    <div className="min-h-screen bg-amber-50/60 dark:bg-zinc-950">
+    <div className="min-h-screen bg-amber-50/60">
       <div className="mx-auto max-w-lg px-4 pb-12 pt-8">
         {/* ヘッダー */}
         <header className="mb-8">
-          <p className="text-sm text-stone-400 dark:text-zinc-500">
+          <p className="text-sm text-stone-400">
             {formatDate(today)}
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-stone-800 dark:text-zinc-50">
+          <h1 className="mt-1 text-2xl font-bold text-stone-800">
             おはようございます
           </h1>
-          <p className="mt-1 text-sm text-stone-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-stone-500">
             今日も一歩、刻みましょう。
           </p>
         </header>
 
         {/* 今日のチェックイン */}
         {MOCK_DATA.todayCheckedIn ? (
-          <div className="mb-6 rounded-2xl bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 p-5">
+          <div className="mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 p-5">
             <div className="flex items-center gap-3">
               <span className="text-2xl">✓</span>
               <div>
-                <p className="font-semibold text-emerald-800 dark:text-emerald-200">
+                <p className="font-semibold text-emerald-800">
                   今日の記録を残しました
                 </p>
-                <p className="text-sm text-emerald-600 dark:text-emerald-400">
+                <p className="text-sm text-emerald-600">
                   {MOCK_DATA.recentAchievements}件の達成を記録
                 </p>
               </div>
             </div>
             <Link
               href="/checkin"
-              className="mt-3 block text-center text-sm font-medium text-emerald-700 dark:text-emerald-300 underline underline-offset-2"
+              className="mt-3 block text-center text-sm font-medium text-emerald-700 underline underline-offset-2"
             >
               今日の記録を見る・追記する
             </Link>
@@ -137,15 +137,15 @@ export default function HomePage() {
         ) : (
           <Link
             href="/checkin"
-            className="mb-6 flex flex-col gap-2 rounded-2xl bg-amber-400 dark:bg-amber-500 p-5 shadow-md hover:bg-amber-300 dark:hover:bg-amber-400 transition-colors"
+            className="mb-6 flex flex-col gap-2 rounded-2xl bg-amber-400 p-5 shadow-md hover:bg-amber-300 transition-colors"
           >
-            <p className="text-lg font-semibold text-white dark:text-zinc-900">
+            <p className="text-lg font-semibold text-white">
               今日を記録する
             </p>
-            <p className="text-sm text-amber-100 dark:text-amber-900">
+            <p className="text-sm text-amber-100">
               小さなことでも、確かに生きた証を残しましょう
             </p>
-            <span className="mt-1 text-xs font-medium text-amber-200 dark:text-amber-800">
+            <span className="mt-1 text-xs font-medium text-amber-200">
               タップして記録 →
             </span>
           </Link>
@@ -153,7 +153,7 @@ export default function HomePage() {
 
         {/* ストリーク・累積 */}
         <section className="mb-6">
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-stone-400 dark:text-zinc-500">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-stone-400">
             継続記録
           </h2>
           <div className="grid grid-cols-2 gap-3">
@@ -173,36 +173,36 @@ export default function HomePage() {
         {/* 今期のマンダラ */}
         <section className="mb-6">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-stone-400 dark:text-zinc-500">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-stone-400">
               {year}年 Q{quarter} マンダラ
             </h2>
             <Link
               href="/mandala"
-              className="text-xs text-stone-500 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+              className="text-xs text-stone-500 hover:text-amber-600 transition-colors"
             >
               詳細を見る →
             </Link>
           </div>
-          <div className="rounded-2xl bg-white dark:bg-zinc-800 p-4 shadow-sm">
-            <p className="mb-3 text-center text-sm font-semibold text-stone-800 dark:text-zinc-50">
+          <div className="rounded-2xl bg-white p-4 shadow-sm">
+            <p className="mb-3 text-center text-sm font-semibold text-stone-800">
               「{MOCK_DATA.mandala.centerTheme}」
             </p>
             <div className="grid grid-cols-4 gap-1.5">
               {MOCK_DATA.mandala.cells.map((cell, i) => (
                 <div
                   key={i}
-                  className="flex flex-col items-center gap-0.5 rounded-xl bg-amber-50 dark:bg-zinc-900 px-1 py-2"
+                  className="flex flex-col items-center gap-0.5 rounded-xl bg-amber-50 px-1 py-2"
                 >
-                  <span className="text-xs font-medium text-stone-700 dark:text-zinc-300 text-center leading-tight line-clamp-2">
+                  <span className="text-xs font-medium text-stone-700 text-center leading-tight line-clamp-2">
                     {cell.title}
                   </span>
-                  <span className="text-xs text-stone-400 dark:text-zinc-500">
+                  <span className="text-xs text-stone-400">
                     {cell.count}回
                   </span>
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-center text-xs text-stone-400 dark:text-zinc-500">
+            <p className="mt-3 text-center text-xs text-stone-400">
               今期の総記録：{totalMandalaCount}件
             </p>
           </div>
@@ -210,7 +210,7 @@ export default function HomePage() {
 
         {/* ナビゲーション */}
         <section>
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-stone-400 dark:text-zinc-500">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-stone-400">
             メニュー
           </h2>
           <div className="grid grid-cols-2 gap-3">

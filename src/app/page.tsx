@@ -46,200 +46,201 @@ const MOCK_DATA: MockData = {
   },
 };
 
-// MOCK_DATA は定数なのでモジュールスコープで計算
 const totalMandalaCount = MOCK_DATA.mandala.cells.reduce(
   (sum, c) => sum + c.count,
   0
 );
 
-type StatCardProps = { label: string; value: string | number; sub?: string };
-
-function StatCard({ label, value, sub }: StatCardProps) {
+function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-1 rounded-2xl bg-white p-4 shadow-sm">
-      <span className="text-2xl font-bold text-amber-500">
-        {value}
+    <div className="flex items-center gap-3 mb-4">
+      <span className="text-[10px] font-semibold tracking-[0.25em] uppercase text-stone-400">
+        {children}
       </span>
-      <span className="text-xs text-stone-500">{label}</span>
-      {sub && (
-        <span className="text-xs text-stone-400">{sub}</span>
-      )}
+      <span className="flex-1 border-t border-stone-200" />
     </div>
   );
 }
 
 type NavCardProps = {
   href: string;
-  icon: string;
   label: string;
   description: string;
+  num: string;
 };
 
-function NavCard({ href, icon, label, description }: NavCardProps) {
+function NavCard({ href, label, description, num }: NavCardProps) {
   return (
     <Link
       href={href}
-      className="flex flex-col gap-2 rounded-2xl bg-white p-4 shadow-sm hover:bg-amber-50 transition-colors"
+      className="group flex flex-col justify-between gap-4 rounded-xl border border-stone-200 bg-white/70 p-4 hover:border-stone-400 hover:bg-white transition-all"
     >
-      <span className="text-2xl">{icon}</span>
-      <span className="font-semibold text-sm text-stone-800">
-        {label}
+      <span className="text-[10px] font-mono text-stone-300 group-hover:text-stone-400 transition-colors">
+        {num}
       </span>
-      <span className="text-xs text-stone-500 leading-relaxed">
-        {description}
-      </span>
+      <div>
+        <p className="font-[family-name:var(--font-serif)] text-sm font-bold text-stone-800 leading-snug">
+          {label}
+        </p>
+        <p className="mt-1 text-xs text-stone-400 leading-relaxed">
+          {description}
+        </p>
+      </div>
     </Link>
   );
 }
 
 export default function HomePage() {
-  // Server Component なのでリクエスト時に現在時刻を取得
   const today = new Date();
   const { year, quarter } = getCurrentQuarter(today);
 
   return (
-    <div className="min-h-screen bg-amber-50/60">
-      <div className="mx-auto max-w-lg px-4 pb-12 pt-8">
+    <div className="min-h-screen bg-[#f9f6ef]">
+      <div className="mx-auto max-w-lg px-5 pb-16 pt-10">
+
         {/* ヘッダー */}
-        <header className="mb-8">
-          <p className="text-sm text-stone-400">
+        <header className="mb-10 border-b border-stone-200 pb-6">
+          <p className="text-xs tracking-widest text-stone-400 uppercase font-mono">
             {formatDate(today)}
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-stone-800">
-            おはようございます
+          <h1 className="mt-3 font-[family-name:var(--font-serif)] text-3xl font-bold text-stone-800 leading-tight">
+            刻む
           </h1>
-          <p className="mt-1 text-sm text-stone-500">
-            今日も一歩、刻みましょう。
+          <p className="mt-2 text-sm text-stone-500">
+            今日も一歩、積み重ねましょう。
           </p>
         </header>
 
         {/* 今日のチェックイン */}
         {MOCK_DATA.todayCheckedIn ? (
-          <div className="mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 p-5">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">✓</span>
-              <div>
-                <p className="font-semibold text-emerald-800">
-                  今日の記録を残しました
-                </p>
-                <p className="text-sm text-emerald-600">
-                  {MOCK_DATA.recentAchievements}件の達成を記録
-                </p>
-              </div>
-            </div>
+          <div className="mb-8 rounded-xl border border-emerald-200 bg-emerald-50/60 p-5">
+            <p className="text-xs tracking-widest text-emerald-500 uppercase font-mono mb-2">
+              Today
+            </p>
+            <p className="font-[family-name:var(--font-serif)] text-base font-bold text-emerald-800">
+              今日の記録を残しました
+            </p>
+            <p className="mt-1 text-sm text-emerald-600">
+              {MOCK_DATA.recentAchievements}件の達成を記録
+            </p>
             <Link
               href="/checkin"
-              className="mt-3 block text-center text-sm font-medium text-emerald-700 underline underline-offset-2"
+              className="mt-3 inline-block text-xs font-medium text-emerald-600 underline underline-offset-4 decoration-emerald-300 hover:decoration-emerald-600 transition-colors"
             >
-              今日の記録を見る・追記する
+              記録を見る・追記する →
             </Link>
           </div>
         ) : (
           <Link
             href="/checkin"
-            className="mb-6 flex flex-col gap-2 rounded-2xl bg-amber-400 p-5 shadow-md hover:bg-amber-300 transition-colors"
+            className="mb-8 group flex items-center justify-between rounded-xl border border-stone-800 bg-stone-800 p-5 hover:bg-stone-700 hover:border-stone-700 transition-all"
           >
-            <p className="text-lg font-semibold text-white">
-              今日を記録する
-            </p>
-            <p className="text-sm text-amber-100">
-              小さなことでも、確かに生きた証を残しましょう
-            </p>
-            <span className="mt-1 text-xs font-medium text-amber-200">
-              タップして記録 →
+            <div>
+              <p className="text-xs tracking-widest text-stone-400 uppercase font-mono mb-1">
+                Today
+              </p>
+              <p className="font-[family-name:var(--font-serif)] text-lg font-bold text-stone-50">
+                今日を記録する
+              </p>
+              <p className="mt-1 text-xs text-stone-400">
+                小さなことでも、確かに生きた証を
+              </p>
+            </div>
+            <span className="text-stone-400 group-hover:text-stone-200 transition-colors text-xl">
+              →
             </span>
           </Link>
         )}
 
         {/* ストリーク・累積 */}
-        <section className="mb-6">
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-stone-400">
-            継続記録
-          </h2>
+        <section className="mb-8">
+          <SectionLabel>継続記録</SectionLabel>
           <div className="grid grid-cols-2 gap-3">
-            <StatCard
-              label="連続記録"
-              value={`${MOCK_DATA.streak}日`}
-              sub="途切れても大丈夫"
-            />
-            <StatCard
-              label="累計記録日数"
-              value={`${MOCK_DATA.totalDays}日`}
-              sub="積み重ねた日々"
-            />
+            {[
+              { label: "連続記録", value: `${MOCK_DATA.streak}日`, sub: "途切れても大丈夫" },
+              { label: "累計記録日数", value: `${MOCK_DATA.totalDays}日`, sub: "積み重ねた日々" },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-xl border border-stone-200 bg-white/70 p-4"
+              >
+                <p className="font-[family-name:var(--font-serif)] text-2xl font-bold text-stone-800">
+                  {item.value}
+                </p>
+                <p className="mt-1 text-xs text-stone-500">{item.label}</p>
+                <p className="text-xs text-stone-300 mt-0.5">{item.sub}</p>
+              </div>
+            ))}
           </div>
         </section>
 
         {/* 今期のマンダラ */}
-        <section className="mb-6">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-stone-400">
-              {year}年 Q{quarter} マンダラ
-            </h2>
-            <Link
-              href="/mandala"
-              className="text-xs text-stone-500 hover:text-amber-600 transition-colors"
-            >
-              詳細を見る →
-            </Link>
-          </div>
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <p className="mb-3 text-center text-sm font-semibold text-stone-800">
+        <section className="mb-8">
+          <SectionLabel>{year}年 Q{quarter} マンダラ</SectionLabel>
+          <div className="rounded-xl border border-stone-200 bg-white/70 p-4">
+            <p className="font-[family-name:var(--font-serif)] text-sm font-bold text-stone-700 text-center mb-4">
               「{MOCK_DATA.mandala.centerTheme}」
             </p>
             <div className="grid grid-cols-4 gap-1.5">
               {MOCK_DATA.mandala.cells.map((cell, i) => (
                 <div
                   key={i}
-                  className="flex flex-col items-center gap-0.5 rounded-xl bg-amber-50 px-1 py-2"
+                  className="flex flex-col items-center gap-1 rounded-lg border border-stone-100 bg-[#f9f6ef] px-1 py-2.5"
                 >
-                  <span className="text-xs font-medium text-stone-700 text-center leading-tight line-clamp-2">
+                  <span className="text-[10px] font-medium text-stone-600 text-center leading-tight line-clamp-2">
                     {cell.title}
                   </span>
-                  <span className="text-xs text-stone-400">
-                    {cell.count}回
+                  <span className="text-[10px] font-mono text-stone-400">
+                    {cell.count}
                   </span>
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-center text-xs text-stone-400">
-              今期の総記録：{totalMandalaCount}件
-            </p>
+            <div className="mt-4 flex items-center justify-between">
+              <span className="text-xs text-stone-400">
+                今期の総記録 {totalMandalaCount}件
+              </span>
+              <Link
+                href="/mandala"
+                className="text-xs text-stone-400 underline underline-offset-4 decoration-stone-200 hover:text-stone-600 hover:decoration-stone-400 transition-colors"
+              >
+                詳細を見る →
+              </Link>
+            </div>
           </div>
         </section>
 
         {/* ナビゲーション */}
         <section>
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-stone-400">
-            メニュー
-          </h2>
+          <SectionLabel>メニュー</SectionLabel>
           <div className="grid grid-cols-2 gap-3">
             <NavCard
               href="/bucket-list"
-              icon="🗺️"
+              num="01"
               label="やりたいことリスト"
-              description="人生でやりたいことを管理する"
+              description="死ぬまでにやりたいことを管理する"
             />
             <NavCard
               href="/orientation"
-              icon="🧭"
+              num="02"
               label="人生の方向性"
               description="こう生きたい、という価値観の軸"
             />
             <NavCard
               href="/calendar"
-              icon="📅"
+              num="03"
               label="カレンダー"
               description="過去の記録を振り返る"
             />
             <NavCard
               href="/mandala"
-              icon="🎯"
+              num="04"
               label="四半期マンダラ"
               description="今期の注力テーマを整理する"
             />
           </div>
         </section>
+
       </div>
     </div>
   );

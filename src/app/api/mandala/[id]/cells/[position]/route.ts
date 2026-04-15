@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { apiError, handlePrismaError } from "@/lib/api-error";
 import type { NextRequest } from "next/server";
 
 // TODO: 認証実装後に実際のユーザーIDを取得する
@@ -18,7 +19,7 @@ export async function PUT(
     where: { id, userId: PLACEHOLDER_USER_ID },
   });
   if (!mandala) {
-    return Response.json({ error: "not found" }, { status: 404 });
+    return apiError("not found" , 404, "VALIDATION");
   }
 
   const cell = await prisma.mandalaCell.upsert({

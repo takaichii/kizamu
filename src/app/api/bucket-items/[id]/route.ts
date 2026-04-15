@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { apiError, handlePrismaError } from "@/lib/api-error";
 import { BucketStatus } from "@/generated/prisma/client";
 import type { NextRequest } from "next/server";
 
@@ -17,7 +18,7 @@ export async function PUT(
     where: { id, userId: PLACEHOLDER_USER_ID },
   });
   if (!existing) {
-    return Response.json({ error: "not found" }, { status: 404 });
+    return apiError("not found" , 404, "VALIDATION");
   }
 
   const updated = await prisma.bucketItem.update({
@@ -48,7 +49,7 @@ export async function DELETE(
     where: { id, userId: PLACEHOLDER_USER_ID },
   });
   if (!existing) {
-    return Response.json({ error: "not found" }, { status: 404 });
+    return apiError("not found" , 404, "VALIDATION");
   }
 
   await prisma.bucketItem.delete({ where: { id } });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button, Input, Textarea, Card, Badge, SectionLabel } from "@/components/ui";
 
 export type BucketStatus = "dream" | "inProgress" | "done";
 
@@ -20,10 +21,10 @@ const STATUS_LABELS: Record<BucketStatus, string> = {
   done: "達成",
 };
 
-const STATUS_COLORS: Record<BucketStatus, string> = {
-  dream: "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
-  inProgress: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
-  done: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+const STATUS_BADGE_VARIANTS: Record<BucketStatus, "violet" | "amber" | "emerald"> = {
+  dream: "violet",
+  inProgress: "amber",
+  done: "emerald",
 };
 
 const NEXT_STATUS: Record<BucketStatus, BucketStatus> = {
@@ -70,9 +71,7 @@ export default function BucketListClient({
 
   async function handleStatusChange(item: BucketItem) {
     const next = NEXT_STATUS[item.status];
-    const doneAt =
-      next === "done" ? new Date().toISOString() : null;
-
+    const doneAt = next === "done" ? new Date().toISOString() : null;
     const res = await fetch(`/api/bucket-items/${item.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -86,9 +85,7 @@ export default function BucketListClient({
   async function handleDelete(id: string) {
     if (!confirm("このアイテムを削除しますか？")) return;
     const res = await fetch(`/api/bucket-items/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      setItems((prev) => prev.filter((i) => i.id !== id));
-    }
+    if (res.ok) setItems((prev) => prev.filter((i) => i.id !== id));
   }
 
   function startEdit(item: BucketItem) {
@@ -112,7 +109,6 @@ export default function BucketListClient({
     e.preventDefault();
     if (!form.title.trim() || !form.category.trim()) return;
     setSaving(true);
-
     try {
       if (editingId) {
         const res = await fetch(`/api/bucket-items/${editingId}`, {
@@ -122,9 +118,7 @@ export default function BucketListClient({
         });
         if (res.ok) {
           const updated: BucketItem = await res.json();
-          setItems((prev) =>
-            prev.map((i) => (i.id === updated.id ? updated : i))
-          );
+          setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
           cancelForm();
         }
       } else {
@@ -145,45 +139,46 @@ export default function BucketListClient({
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <div className="mx-auto max-w-lg px-4 pb-12 pt-8">
+    <div className="min-h-screen bg-[#f9f6ef]">
+      <div className="mx-auto max-w-lg px-5 pb-16 pt-10">
+
         {/* ヘッダー */}
-        <header className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-              🗺️ やりたいことリスト
+        <header className="mb-10 border-b border-stone-200 pb-6">
+          <p className="text-[10px] tracking-[0.25em] uppercase font-mono text-stone-400 mb-3">
+            Bucket List
+          </p>
+          <div className="flex items-end justify-between">
+            <h1 className="font-[family-name:var(--font-serif)] text-3xl font-bold text-stone-800 leading-tight">
+              やりたいことリスト
             </h1>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              死ぬまでにやりたいことを刻もう
-            </p>
+            <Button
+              onClick={() => { setEditingId(null); setForm(EMPTY_FORM); setShowForm(true); }}
+              size="sm"
+              className="mb-1"
+            >
+              ＋ 追加
+            </Button>
           </div>
-          <button
-            onClick={() => {
-              setEditingId(null);
-              setForm(EMPTY_FORM);
-              setShowForm(true);
-            }}
-            className="rounded-xl bg-zinc-900 dark:bg-zinc-50 px-4 py-2 text-sm font-medium text-zinc-50 dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors"
-          >
-            ＋ 追加
-          </button>
+          <p className="mt-2 text-sm text-stone-500">
+            死ぬまでにやりたいことを刻もう
+          </p>
         </header>
 
         {/* フィルタータブ */}
-        <div className="mb-4 flex gap-2">
+        <div className="mb-6 flex gap-2 flex-wrap">
           {FILTERS.map((f) => (
             <button
               key={f.value}
               onClick={() => setFilter(f.value)}
               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 filter === f.value
-                  ? "bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-900"
-                  : "bg-white dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                  ? "bg-stone-800 text-stone-50"
+                  : "border border-stone-200 text-stone-500 hover:bg-white"
               }`}
             >
               {f.label}
               {f.value !== "all" && (
-                <span className="ml-1 text-zinc-400 dark:text-zinc-500">
+                <span className="ml-1 opacity-60">
                   {items.filter((i) => i.status === f.value).length}
                 </span>
               )}
@@ -193,135 +188,110 @@ export default function BucketListClient({
 
         {/* フォーム */}
         {showForm && (
-          <form
-            onSubmit={handleSubmit}
-            className="mb-6 rounded-2xl bg-white dark:bg-zinc-800 p-5 shadow-sm"
-          >
-            <h2 className="mb-4 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-              {editingId ? "アイテムを編集" : "新しいアイテムを追加"}
-            </h2>
-            <div className="flex flex-col gap-3">
-              <input
-                type="text"
-                placeholder="やりたいこと *"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                required
-                className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 px-4 py-2.5 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400"
-              />
-              <input
-                type="text"
-                placeholder="カテゴリ（旅行、スキル、体験など）*"
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                required
-                className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 px-4 py-2.5 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400"
-              />
-              <textarea
-                placeholder="詳細・メモ（任意）"
-                value={form.description}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-                rows={2}
-                className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 px-4 py-2.5 text-sm text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400 resize-none"
-              />
-              <select
-                value={form.status}
-                onChange={(e) =>
-                  setForm({ ...form, status: e.target.value as BucketStatus })
-                }
-                className="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 px-4 py-2.5 text-sm text-zinc-900 dark:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-400"
-              >
-                <option value="dream">夢</option>
-                <option value="inProgress">挑戦中</option>
-                <option value="done">達成</option>
-              </select>
-            </div>
-            <div className="mt-4 flex gap-2">
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex-1 rounded-xl bg-zinc-900 dark:bg-zinc-50 py-2.5 text-sm font-medium text-zinc-50 dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 disabled:opacity-50 transition-colors"
-              >
-                {saving ? "保存中..." : editingId ? "更新" : "追加"}
-              </button>
-              <button
-                type="button"
-                onClick={cancelForm}
-                className="flex-1 rounded-xl border border-zinc-200 dark:border-zinc-700 py-2.5 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
-              >
-                キャンセル
-              </button>
-            </div>
+          <form onSubmit={handleSubmit} className="mb-6">
+            <Card>
+              <SectionLabel>{editingId ? "アイテムを編集" : "新しいアイテム"}</SectionLabel>
+              <div className="flex flex-col gap-3">
+                <Input
+                  type="text"
+                  placeholder="やりたいこと *"
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  required
+                />
+                <Input
+                  type="text"
+                  placeholder="カテゴリ（旅行、スキル、体験など）*"
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  required
+                />
+                <Textarea
+                  placeholder="詳細・メモ（任意）"
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  rows={2}
+                />
+                <select
+                  value={form.status}
+                  onChange={(e) => setForm({ ...form, status: e.target.value as BucketStatus })}
+                  className="w-full rounded-lg border border-stone-200 bg-[#f9f6ef] px-4 py-2.5 text-sm text-stone-800 focus:outline-none focus:ring-1 focus:ring-stone-400"
+                >
+                  <option value="dream">夢</option>
+                  <option value="inProgress">挑戦中</option>
+                  <option value="done">達成</option>
+                </select>
+              </div>
+              <div className="mt-4 flex gap-2">
+                <Button type="submit" disabled={saving} className="flex-1">
+                  {saving ? "保存中..." : editingId ? "更新" : "追加"}
+                </Button>
+                <Button type="button" variant="secondary" onClick={cancelForm} className="flex-1">
+                  キャンセル
+                </Button>
+              </div>
+            </Card>
           </form>
         )}
 
         {/* リスト */}
         {filtered.length === 0 ? (
-          <div className="rounded-2xl bg-white dark:bg-zinc-800 p-8 text-center shadow-sm">
-            <p className="text-sm text-zinc-400 dark:text-zinc-500">
+          <Card padding="lg" className="text-center">
+            <p className="font-[family-name:var(--font-serif)] text-stone-400 text-sm">
               {filter === "all"
-                ? "まだアイテムがありません。追加してみましょう！"
+                ? "まだアイテムがありません"
                 : `「${FILTERS.find((f) => f.value === filter)?.label}」のアイテムはありません`}
             </p>
-          </div>
+            <p className="mt-1 text-xs text-stone-300">追加ボタンから登録してみましょう</p>
+          </Card>
         ) : (
           <ul className="flex flex-col gap-3">
             {filtered.map((item) => (
-              <li
-                key={item.id}
-                className="rounded-2xl bg-white dark:bg-zinc-800 p-4 shadow-sm"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span
-                        className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[item.status]}`}
-                      >
-                        {STATUS_LABELS[item.status]}
-                      </span>
-                      <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                        {item.category}
-                      </span>
+              <li key={item.id}>
+                <Card>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                        <Badge variant={STATUS_BADGE_VARIANTS[item.status]}>
+                          {STATUS_LABELS[item.status]}
+                        </Badge>
+                        <span className="text-[10px] font-mono text-stone-300">
+                          {item.category}
+                        </span>
+                      </div>
+                      <p className="font-[family-name:var(--font-serif)] font-bold text-stone-800 leading-snug">
+                        {item.title}
+                      </p>
+                      {item.description && (
+                        <p className="mt-1 text-xs text-stone-500 leading-relaxed">
+                          {item.description}
+                        </p>
+                      )}
+                      {item.doneAt && (
+                        <p className="mt-1 text-xs text-emerald-600">
+                          達成: {new Date(item.doneAt).toLocaleDateString("ja-JP")}
+                        </p>
+                      )}
                     </div>
-                    <p className="mt-1.5 font-semibold text-sm text-zinc-900 dark:text-zinc-50 leading-snug">
-                      {item.title}
-                    </p>
-                    {item.description && (
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                        {item.description}
-                      </p>
-                    )}
-                    {item.doneAt && (
-                      <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
-                        達成:{" "}
-                        {new Date(item.doneAt).toLocaleDateString("ja-JP")}
-                      </p>
-                    )}
+                    <div className="flex flex-col gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleStatusChange(item)}
+                        title="次のステータスへ"
+                        className="whitespace-nowrap"
+                      >
+                        → {STATUS_LABELS[NEXT_STATUS[item.status]]}
+                      </Button>
+                      <Button variant="secondary" size="sm" onClick={() => startEdit(item)}>
+                        編集
+                      </Button>
+                      <Button variant="danger" size="sm" onClick={() => handleDelete(item.id)}>
+                        削除
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-1 shrink-0">
-                    <button
-                      onClick={() => handleStatusChange(item)}
-                      className="rounded-lg bg-zinc-50 dark:bg-zinc-900 px-2 py-1 text-xs text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors whitespace-nowrap"
-                      title="次のステータスへ"
-                    >
-                      → {STATUS_LABELS[NEXT_STATUS[item.status]]}
-                    </button>
-                    <button
-                      onClick={() => startEdit(item)}
-                      className="rounded-lg bg-zinc-50 dark:bg-zinc-900 px-2 py-1 text-xs text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-                    >
-                      編集
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="rounded-lg bg-zinc-50 dark:bg-zinc-900 px-2 py-1 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
-                    >
-                      削除
-                    </button>
-                  </div>
-                </div>
+                </Card>
               </li>
             ))}
           </ul>
@@ -329,23 +299,19 @@ export default function BucketListClient({
 
         {/* 統計 */}
         {items.length > 0 && (
-          <div className="mt-6 rounded-2xl bg-white dark:bg-zinc-800 p-4 shadow-sm">
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-              統計
-            </h2>
-            <div className="grid grid-cols-3 gap-3">
+          <Card className="mt-6">
+            <SectionLabel>統計</SectionLabel>
+            <div className="grid grid-cols-3 gap-3 text-center">
               {(["dream", "inProgress", "done"] as BucketStatus[]).map((s) => (
-                <div key={s} className="text-center">
-                  <p className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+                <div key={s}>
+                  <p className="font-[family-name:var(--font-serif)] text-2xl font-bold text-stone-800">
                     {items.filter((i) => i.status === s).length}
                   </p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {STATUS_LABELS[s]}
-                  </p>
+                  <p className="text-xs text-stone-400">{STATUS_LABELS[s]}</p>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         )}
       </div>
     </div>

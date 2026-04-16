@@ -133,7 +133,7 @@ export default function HomePage() {
         ) : (
           <Link
             href="/checkin"
-            className="mb-8 group flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50/60 p-5 hover:border-amber-300 hover:bg-amber-50 transition-all"
+            className="mb-8 group flex items-center justify-between rounded-xl border border-amber-300 bg-amber-100 p-5 hover:border-amber-400 hover:bg-amber-200/70 transition-all"
           >
             <div>
               <p className="text-xs tracking-widest text-amber-500 uppercase font-mono mb-1">

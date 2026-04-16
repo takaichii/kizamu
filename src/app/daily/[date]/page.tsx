@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { CheckinForm } from "./checkin-form";
 
 // 認証実装後（Issue #4）に差し替え
-const MOCK_USER_ID = "mock-user-id";
+const PLACEHOLDER_USER_ID = "placeholder";
 
 type Props = { params: Promise<{ date: string }> };
 
@@ -35,7 +35,7 @@ export default async function DailyPage({ params }: Props) {
   let entry = null;
   try {
     entry = await prisma.dailyEntry.findUnique({
-      where: { userId_date: { userId: MOCK_USER_ID, date: new Date(date) } },
+      where: { userId_date: { userId: PLACEHOLDER_USER_ID, date: new Date(date) } },
       include: { achievements: { orderBy: { createdAt: "asc" } } },
     });
   } catch {
@@ -43,23 +43,23 @@ export default async function DailyPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <div className="mx-auto max-w-lg px-4 pb-12 pt-8">
-        {/* ヘッダー */}
-        <header className="mb-8">
+    <div className="min-h-screen bg-[#f9f6ef]">
+      <div className="mx-auto max-w-lg px-5 pb-16 pt-10">
+
+        <header className="mb-10 border-b border-stone-200 pb-6">
           <Link
             href="/"
-            className="mb-4 inline-block text-sm text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+            className="mb-4 inline-block text-xs font-mono text-stone-400 hover:text-stone-600 transition-colors"
           >
             ← ホームへ
           </Link>
-          <p className="text-sm text-zinc-400 dark:text-zinc-500">
+          <p className="text-[10px] tracking-[0.25em] uppercase font-mono text-stone-400 mb-3">
             {formatDateJa(date)}
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+          <h1 className="font-[family-name:var(--font-serif)] text-3xl font-bold text-stone-800 leading-tight">
             今日を刻む
           </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-2 text-sm text-stone-500">
             どんな小さなことでも、記録に価値があります。
           </p>
         </header>

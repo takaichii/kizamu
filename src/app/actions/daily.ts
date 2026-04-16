@@ -1,11 +1,11 @@
 "use server";
 
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { refresh } from "next/cache";
 
 // 認証実装後（Issue #4）に差し替え
-const MOCK_USER_ID = "mock-user-id";
+const PLACEHOLDER_USER_ID = "placeholder";
 
 const achievementInput = z.object({
   text: z.string().min(1, "達成内容を入力してください").max(200),
@@ -45,11 +45,11 @@ export async function upsertDailyEntry(
   try {
     const entry = await prisma.dailyEntry.upsert({
       where: {
-        userId_date: { userId: MOCK_USER_ID, date: new Date(date) },
+        userId_date: { userId: PLACEHOLDER_USER_ID, date: new Date(date) },
       },
       update: { mood: mood ?? null, summary, tomorrowNote },
       create: {
-        userId: MOCK_USER_ID,
+        userId: PLACEHOLDER_USER_ID,
         date: new Date(date),
         mood: mood ?? null,
         summary,
@@ -69,7 +69,8 @@ export async function upsertDailyEntry(
       });
     }
 
-    refresh();
+    revalidatePath("/");
+    revalidatePath(`/daily/${date}`);
     return { success: true };
   } catch {
     return { error: "保存に失敗しました。DB接続を確認してください。" };

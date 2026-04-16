@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { apiError, handlePrismaError } from "@/lib/api-error";
+import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
+import { createBucketItemSchema } from "@/lib/validations";
 import { BucketStatus } from "@/generated/prisma/client";
 import type { NextRequest } from "next/server";
 
@@ -7,9 +9,17 @@ import type { NextRequest } from "next/server";
 const PLACEHOLDER_USER_ID = "placeholder";
 
 export async function GET(request: NextRequest) {
-  try {    const { searchParams } = request.nextUrl;
-    const status = searchParams.get("status") as BucketStatus | null;
-  
+  const { ok } = rateLimit(getRateLimitKey(request));
+  if (!ok) return apiError("リクエストが多すぎます", 429, "RATE_LIMIT");
+
+  try {
+    const { searchParams } = request.nextUrl;
+    const statusParam = searchParams.get("status");
+    const status =
+      statusParam && Object.values(BucketStatus).includes(statusParam as BucketStatus)
+        ? (statusParam as BucketStatus)
+        : null;
+
     const items = await prisma.bucketItem.findMany({
       where: {
         userId: PLACEHOLDER_USER_ID,
@@ -21,7 +31,7 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { createdAt: "desc" },
     });
-  
+
     return Response.json(items);
   } catch (err) {
     return handlePrismaError(err);
@@ -29,22 +39,23 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  try {    const body = await request.json();
-    const { title, description, category, status, orientationId } = body;
-  
-    if (!title || typeof title !== "string" || !title.trim()) {
-      return apiError("title is required" , 400, "VALIDATION");
+  const { ok } = rateLimit(getRateLimitKey(request));
+  if (!ok) return apiError("リクエストが多すぎます", 429, "RATE_LIMIT");
+
+  try {
+    const body = await request.json();
+    const parsed = createBucketItemSchema.safeParse(body);
+    if (!parsed.success) {
+      return apiError(parsed.error.issues[0].message, 400, "VALIDATION");
     }
-    if (!category || typeof category !== "string" || !category.trim()) {
-      return apiError("category is required" , 400, "VALIDATION");
-    }
-  
+    const { title, description, category, status, orientationId } = parsed.data;
+
     const item = await prisma.bucketItem.create({
       data: {
         userId: PLACEHOLDER_USER_ID,
-        title: title.trim(),
-        description: description?.trim() ?? null,
-        category: category.trim(),
+        title,
+        description: description ?? null,
+        category,
         status: status ?? BucketStatus.dream,
         orientationId: orientationId ?? null,
       },
@@ -52,7 +63,7 @@ export async function POST(request: NextRequest) {
         orientation: { select: { id: true, title: true } },
       },
     });
-  
+
     return Response.json(item, { status: 201 });
   } catch (err) {
     return handlePrismaError(err);

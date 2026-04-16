@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SectionLabel } from "@/components/ui";
 
 export type MandalaCell = {
   id: string;
@@ -21,17 +22,6 @@ export type Mandala = {
   centerTheme: string;
   cells: MandalaCell[];
 };
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-3 mb-4">
-      <span className="text-[10px] font-semibold tracking-[0.25em] uppercase text-stone-400">
-        {children}
-      </span>
-      <span className="flex-1 border-t border-stone-200" />
-    </div>
-  );
-}
 
 // 8セルの配置順（中心を囲む時計回り）
 // 位置 0〜7 を 3×3 グリッドの外周に配置

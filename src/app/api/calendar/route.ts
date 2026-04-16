@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { apiError, handlePrismaError } from "@/lib/api-error";
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 import { calendarQuerySchema } from "@/lib/validations";
+import { calcStreak } from "@/lib/streak";
 import type { NextRequest } from "next/server";
 
 // TODO: 認証実装後に実際のユーザーIDを取得する
@@ -36,29 +37,14 @@ export async function GET(request: NextRequest) {
       orderBy: { date: "asc" },
     });
 
-    // ストリーク計算（直近の連続日数）
     const allEntries = await prisma.dailyEntry.findMany({
       where: { userId: PLACEHOLDER_USER_ID },
       select: { date: true },
       orderBy: { date: "desc" },
     });
 
-    let streak = 0;
+    const streak = calcStreak(allEntries.map((e) => e.date));
     const totalDays = allEntries.length;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    for (let i = 0; i < allEntries.length; i++) {
-      const d = new Date(allEntries[i].date);
-      d.setHours(0, 0, 0, 0);
-      const expected = new Date(today);
-      expected.setDate(today.getDate() - i);
-      if (d.getTime() === expected.getTime()) {
-        streak++;
-      } else {
-        break;
-      }
-    }
 
     return Response.json({
       entries: entries.map((e) => ({

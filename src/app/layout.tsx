@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Noto_Serif_JP } from "next/font/google";
 import { Toaster } from "sonner";
+import BottomNav from "@/components/BottomNav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -49,8 +50,9 @@ export default function RootLayout({
       lang="ja"
       className={`${geistSans.variable} ${geistMono.variable} ${notoSerifJP.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col pb-16">
         {children}
+        <BottomNav />
         <Toaster
           position="bottom-center"
           toastOptions={{

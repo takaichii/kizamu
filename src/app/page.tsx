@@ -133,20 +133,20 @@ export default function HomePage() {
         ) : (
           <Link
             href="/checkin"
-            className="mb-8 group flex items-center justify-between rounded-xl border border-stone-800 bg-stone-800 p-5 hover:bg-stone-700 hover:border-stone-700 transition-all"
+            className="mb-8 group flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50/60 p-5 hover:border-amber-300 hover:bg-amber-50 transition-all"
           >
             <div>
-              <p className="text-xs tracking-widest text-stone-400 uppercase font-mono mb-1">
+              <p className="text-xs tracking-widest text-amber-500 uppercase font-mono mb-1">
                 Today
               </p>
-              <p className="font-[family-name:var(--font-serif)] text-lg font-bold text-stone-50">
+              <p className="font-[family-name:var(--font-serif)] text-lg font-bold text-stone-800">
                 今日を記録する
               </p>
               <p className="mt-1 text-xs text-stone-400">
                 小さなことでも、確かに生きた証を
               </p>
             </div>
-            <span className="text-stone-400 group-hover:text-stone-200 transition-colors text-xl">
+            <span className="text-amber-400 group-hover:text-amber-600 transition-colors text-xl">
               →
             </span>
           </Link>

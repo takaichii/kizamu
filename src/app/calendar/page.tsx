@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
+import { calcStreak } from "@/lib/streak";
 import CalendarClient from "./CalendarClient";
 import type { CalendarData } from "./CalendarClient";
 
@@ -6,46 +8,53 @@ export const metadata: Metadata = {
   title: "カレンダー",
 };
 
-// ダミーデータ（認証・DB実装後に差し替え）
-function buildMockData(year: number, month: number): CalendarData {
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const entries = [];
+const PLACEHOLDER_USER_ID = "placeholder";
 
-  // 過去の記録をランダムに生成
-  const recordDays = [1, 2, 3, 5, 6, 8, 10, 11, 12, 13, 14, 15, 17, 18, 20, 21, 22, 25, 26, 28];
-  for (const day of recordDays) {
-    if (day > daysInMonth) break;
-    const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}T00:00:00.000Z`;
-    const achievementCount = Math.floor(Math.random() * 4) + 1;
-    entries.push({
-      id: `entry-${day}`,
-      date: dateStr,
-      mood: Math.floor(Math.random() * 3) + 3,
-      summary: day % 5 === 0 ? "今日も一歩前進できた。小さなことを大切に。" : null,
-      achievementCount,
-      achievements: Array.from({ length: achievementCount }, (_, i) => ({
-        id: `ach-${day}-${i}`,
-        text: ["30分読書した", "散歩した", "健康的な食事", "家族と話した", "コードを書いた"][i % 5],
-        tags: [],
-        isQuick: i % 2 === 0,
-      })),
-    });
-  }
-
-  return {
-    entries,
-    stats: { streak: 5, totalDays: 38 },
-  };
-}
-
-export default function CalendarPage() {
+export default async function CalendarPage() {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth() + 1;
 
+  let initialData: CalendarData = { entries: [], stats: { streak: 0, totalDays: 0 } };
+
+  try {
+    const from = new Date(year, month - 1, 1);
+    const to = new Date(year, month, 1);
+
+    const [entries, allEntries] = await Promise.all([
+      prisma.dailyEntry.findMany({
+        where: { userId: PLACEHOLDER_USER_ID, date: { gte: from, lt: to } },
+        include: { achievements: { select: { id: true, text: true, tags: true, isQuick: true } } },
+        orderBy: { date: "asc" },
+      }),
+      prisma.dailyEntry.findMany({
+        where: { userId: PLACEHOLDER_USER_ID },
+        select: { date: true },
+        orderBy: { date: "desc" },
+      }),
+    ]);
+
+    initialData = {
+      entries: entries.map((e) => ({
+        id: e.id,
+        date: e.date.toISOString(),
+        mood: e.mood,
+        summary: e.summary,
+        achievementCount: e.achievements.length,
+        achievements: e.achievements,
+      })),
+      stats: {
+        streak: calcStreak(allEntries.map((e) => e.date)),
+        totalDays: allEntries.length,
+      },
+    };
+  } catch {
+    // DB未接続時は空データで表示
+  }
+
   return (
     <CalendarClient
-      initialData={buildMockData(year, month)}
+      initialData={initialData}
       initialYear={year}
       initialMonth={month}
     />

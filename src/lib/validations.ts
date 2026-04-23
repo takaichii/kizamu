@@ -63,6 +63,17 @@ export const updateMandalaCellSchema = z.object({
   bucketItemId: z.string().cuid().nullable().optional(),
 });
 
+// Stats query
+export const statsQuerySchema = z.object({
+  days: z
+    .string()
+    .regex(/^\d+$/)
+    .transform(Number)
+    .pipe(z.number().int().min(7).max(365))
+    .optional()
+    .default(28),
+});
+
 // Calendar query
 export const calendarQuerySchema = z.object({
   year: z

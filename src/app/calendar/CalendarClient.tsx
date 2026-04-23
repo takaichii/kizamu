@@ -1,6 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
+
+const StatsView = dynamic(() => import("./StatsView"), {
+  loading: () => (
+    <div className="flex h-48 items-center justify-center text-sm text-stone-300">
+      読み込み中…
+    </div>
+  ),
+  ssr: false,
+});
 
 export type DayEntry = {
   id: string;
@@ -52,6 +62,7 @@ export default function CalendarClient({
   initialYear: number;
   initialMonth: number;
 }) {
+  const [tab, setTab] = useState<"calendar" | "graph">("calendar");
   const [year, setYear] = useState(initialYear);
   const [month, setMonth] = useState(initialMonth);
   const [data, setData] = useState<CalendarData>(initialData);
@@ -110,6 +121,29 @@ export default function CalendarClient({
             積み重ねた日々を振り返る
           </p>
         </header>
+
+        {/* タブ */}
+        <div className="mb-8 flex gap-1 rounded-xl border border-stone-200 bg-white/50 p-1">
+          {(["calendar", "graph"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`flex-1 rounded-lg py-2 text-xs font-mono transition-colors ${
+                tab === t
+                  ? "bg-stone-800 text-white shadow-sm"
+                  : "text-stone-400 hover:text-stone-600"
+              }`}
+            >
+              {t === "calendar" ? "カレンダー" : "グラフ"}
+            </button>
+          ))}
+        </div>
+
+        {/* グラフビュー */}
+        {tab === "graph" && <StatsView />}
+
+        {/* カレンダービュー */}
+        {tab === "calendar" && <>
 
         {/* 統計 */}
         <section className="mb-8">
@@ -290,6 +324,8 @@ export default function CalendarClient({
             </div>
           </section>
         )}
+
+        </>}
 
       </div>
     </div>
